@@ -91,7 +91,10 @@ provider "proxmox" {
 #################################
 
 locals {
-  ssh_public_key = trimspace(file("C:/Users/mathi/.ssh/id_ed25519.pub"))
+  # Mathi's nøgle (fra fil når Terraform kører på Mathi's PC)
+  ssh_public_key_mathi = trimspace(file("C:/Users/mathi/.ssh/id_ed25519.pub"))
+  # Proxmox (root@pve) – SSH fra PVE til VM'erne uden password
+  ssh_public_key_proxmox = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC9JtnYyine5bot1bvVmd8ZC8iSeHW7zqQKuilG2Cbc3se7E24gUeGzfHWncWpaa53y9lHz++h14GxBH0YOyjPSIgcgsOBoq2+4scbXq2q4wap80LdJn0QFFzU49xC3osy9XbO0nkHsIIUzmGcplEUzkPsKIwByF6P3dcBJrFYC31CFRJspLsneYxumeynGjZvmlhdjnOh0kccdD+FrqwxhDIYPQqirSENamqIMqrJXn4SwOaPrBpNWdNT2wuxPTsMc2DB+vLh5rr0YU3yAb04X1/kyRDxvOAuk/2AySn4oqiaXS1wn5eIwEcFVZpCNBazoZK3iOYc1r/D3+mydgbhOG1uY7A3O5bgSyGAwvTzBPj1QcrJ1tpUtQVrM3tUFU7J7W0XR+Sceehnx8taVoSlLVpFlAkwk1+UMBl3IoLKQZjC/pvrUnq99gKBOyg7knyD7QgdCFeEdOaFes4dR7qQ6VnCUPEiLA/fQklFwNgygZKb0ti2whKjOT4SE0RLkjdLzG1WkRASlO7c1sVgyotcmJBPXwhWRPNozPFHytz7AVCmmytE/SJpNsJvHPUqe4YTdgNBCQKTW69CLqhAHhaZNDchoYhnxsgnvE3LMY27O1WCL6pmQxJFJ+cA9ZIH4Ge1oVYxvUB1eF6vCc2bfb+n8rNVHlQsvkvHjmKB0W4GJOQ== root@pve"
 
   common_vm_config = {
     clone = {
@@ -108,7 +111,7 @@ locals {
       datastore_id = "Disks"
       user_account = {
         username = "ubuntu"
-        keys     = [local.ssh_public_key]
+        keys     = [local.ssh_public_key_mathi, local.ssh_public_key_proxmox]
       }
     }
     network_device   = { bridge = "TRUNK", model = "virtio", vlan_id = var.vm_network_vlan_id }
