@@ -1,0 +1,27 @@
+---
+# K3s: installér server på control plane, agent på workers, derefter ingress + MetalLB
+# Kør: ansible-playbook -i ../inventory/hosts.ini k3s.yml
+
+- name: K3s cluster setup
+  hosts: k3s_cluster
+  become: true
+  vars:
+    # Tilpas evt. K3s-version eller flage
+    k3s_version: "v1.28"
+  tasks:
+    - name: Wait for system to be ready
+      wait_for_connection:
+        timeout: 120
+
+    - name: Install K3s (placeholder – udvid med server/agent tasks)
+      debug:
+        msg: "Her: installér K3s server på {{ groups['k3s_control_plane'] | first }}, agent på workers, så ingress + MetalLB."
+      when: false
+
+# Eksempel-struktur du kan udvide:
+# - hosts: k3s_control_plane
+#   tasks: install k3s server, write node-token til fil
+# - hosts: k3s_workers
+#   tasks: install k3s agent med token fra control plane
+# - hosts: k3s_control_plane
+#   tasks: install MetalLB + ingress (kubectl/helm)
