@@ -40,6 +40,16 @@ ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -q root@10.133.51.119"'
 
 (Kræver at din PC kan SSH til root@10.133.51.119, og at Proxmox kan SSH til ubuntu@10.133.51.120/121/122 – dvs. din offentlige nøgle skal ligge både på pve og i VM'ernes ubuntu authorized_keys.)
 
+## Playbooks
+
+| Playbook | Beskrivelse |
+|----------|-------------|
+| `playbooks/k3s.yml` | K3s cluster (placeholder). |
+| `playbooks/deploy-app.yml` | Deployer Node-app (Docker) på alle noder + nginx load balancer på control plane. Åbn http://10.133.51.120 og genindlæs for at se skifte mellem worker 1 og 2. |
+
+Kør deploy-app (fx fra Proxmox):  
+`ansible-playbook -i inventory/hosts.ini playbooks/deploy-app.yml`
+
 ## Inventory
 
 - `inventory/hosts.ini` – statiske IP'er for k3s-cp-1, k3s-worker-1, k3s-worker-2.

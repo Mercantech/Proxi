@@ -35,5 +35,11 @@ logs/
 
 .venv
 
+# App / Node
+node_modules/
+app/.env
+npm-debug.log*
+.npm
+
 .obsidian/workspace.json
 .obsidian/app.json

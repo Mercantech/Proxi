@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proxi – Setup demo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>Proxi</h1>
+    <p class="tagline">Demo bag load balancer</p>
+
+    <section class="whoami" id="whoami">
+      <p class="label">Du ramte denne node:</p>
+      <p class="host" id="host">—</p>
+      <p class="ip" id="ip">—</p>
+      <p class="db" id="db">—</p>
+      <p class="hint">Genindlæs siden – load balancer kan sende dig til den anden worker.</p>
+    </section>
+
+    <section class="setup">
+      <h2>Setup</h2>
+      <ul>
+        <li><strong>Terraform</strong> – Proxmox VM’er (1 control plane + 2 workers), statisk IP, VLAN 551.</li>
+        <li><strong>Ansible</strong> – Docker + denne app på alle noder; nginx som load balancer på control plane.</li>
+        <li><strong>Docker</strong> – Node.js + Express i container; docker-compose.</li>
+        <li>Du rammer <strong>control plane (10.133.51.120)</strong> → nginx round-robin til <strong>worker 1</strong> og <strong>worker 2</strong>.</li>
+      </ul>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
