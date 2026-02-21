@@ -76,6 +76,14 @@ variable "vm_user_password" {
   sensitive   = true
 }
 
+# Diskstørrelse i GB for root-disk på VM'erne (template-disk resizes til denne størrelse ved clone).
+# K3s kræver plads – 32 GB anbefales. Template-disk skal være ≤ denne størrelse eller resizes.
+variable "vm_disk_size_gb" {
+  type        = number
+  description = "Root-disk størrelse i GB (fx 32 for K3s). Template-disk resizes til denne ved clone."
+  default     = 32
+}
+
 #################################
 # PROVIDER (bpg/proxmox)
 #################################
@@ -156,6 +164,12 @@ resource "proxmox_virtual_environment_vm" "k3s_control_plane" {
     dedicated = local.common_vm_config.memory.dedicated
   }
 
+  disk {
+    datastore_id = local.common_vm_config.clone.datastore_id
+    interface    = "scsi0"
+    size         = var.vm_disk_size_gb
+  }
+
   initialization {
     datastore_id = local.common_vm_config.initialization.datastore_id
     ip_config {
@@ -213,6 +227,12 @@ resource "proxmox_virtual_environment_vm" "k3s_worker" {
 
   memory {
     dedicated = local.common_vm_config.memory.dedicated
+  }
+
+  disk {
+    datastore_id = local.common_vm_config.clone.datastore_id
+    interface    = "scsi0"
+    size         = var.vm_disk_size_gb
   }
 
   initialization {

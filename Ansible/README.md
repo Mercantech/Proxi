@@ -18,7 +18,7 @@ VM'erne er i **VLAN 551**; din PC er typisk på et andet net, så SSH fra PC til
 
 # På pve: klon repo (eller kopiér Ansible-mappen), og sæt din SSH-nøgle til ubuntu
 apt update && apt install -y ansible git
-git clone https://github.com/DIT-BRUGERNAVN/Proxi.git   # eller scp Ansible-mappen over
+git clone https://github.com/mercantech/Proxi.git   # eller scp Ansible-mappen over
 cd Proxi/Ansible
 
 # Kopiér din private nøgle til pve (så Ansible kan SSH til VM'erne som ubuntu).
@@ -44,11 +44,26 @@ ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -q root@10.133.51.119"'
 
 | Playbook | Beskrivelse |
 |----------|-------------|
-| `playbooks/k3s.yml` | K3s cluster (placeholder). |
-| `playbooks/deploy-app.yml` | Deployer Node-app (Docker) på alle noder + nginx load balancer på control plane. Åbn http://10.133.51.120 og genindlæs for at se skifte mellem worker 1 og 2. |
+| `playbooks/k3s.yml` | Installerer K3s (server på control plane, agent på workers). Kør først. |
+| `playbooks/deploy-k8s.yml` | **K3s-native:** Bygger app-image, loader i K3s, deployer Postgres + app som Deployments/Ingress. |
+| `playbooks/deploy-app.yml` | Docker-baseret: Node-app + docker-compose på alle noder + nginx load balancer. |
 
-Kør deploy-app (fx fra Proxmox):  
-`ansible-playbook -i inventory/hosts.ini playbooks/deploy-app.yml`
+### K3s-flow (anbefalet)
+
+Fra Proxmox (eller med ProxyJump):
+
+```bash
+cd Proxi/Ansible
+ansible k3s_cluster -m ping -i inventory/hosts.ini
+ansible-playbook -i inventory/hosts.ini playbooks/k3s.yml
+ansible-playbook -i inventory/hosts.ini playbooks/deploy-k8s.yml
+```
+
+Åbn http://10.133.51.120 – Traefik Ingress sender trafikken til app-pods på alle noder.
+
+### Docker-flow (alternativ)
+
+`ansible-playbook -i inventory/hosts.ini playbooks/deploy-app.yml` – Åbn http://10.133.51.120 og genindlæs for at se skifte mellem worker 1 og 2.
 
 ## Inventory
 
@@ -103,6 +118,7 @@ Fra PowerShell i `Ansible`-mappen:
 docker run --rm -it -v "${PWD}:/work" -w /work -v "${HOME}/.ssh:/root/.ssh:ro" cytopia/ansible ansible k3s_cluster -m ping
 ```
 
-## Playbooks
+### Playbooks (reference)
 
-- `playbooks/k3s.yml` – K3s cluster setup (server på control plane, agent på workers; udvides med MetalLB/ingress).
+- `playbooks/k3s.yml` – K3s server på control plane, agent på workers (Traefik følger med).
+- `playbooks/deploy-k8s.yml` – App + Postgres som Kubernetes-ressourcer; se også `../app/k8s/README.md`.
